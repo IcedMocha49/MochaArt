@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import {mobile, lgMobile, tablet, laptop, desktop} from "../responsiveDesign";
-
+import { useState } from 'react';
+import db from '../firebase';
+import firebase from 'firebase/compat/app';
 
 const Container = styled.div`
   height: 30vh;
@@ -12,7 +14,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 const EmailContainer = styled.div`
-  width: 50%;
+  width: 80%;
   height: 40px;
   display: flex;
   justify-content: space-between;
@@ -47,7 +49,7 @@ const Input = styled.input`
 `;
 const Button = styled.button`
   display: flex;
-  width: 50%;
+  width: 80%;
   padding: 10px 20px;
   text-align: center;
   text-decoration: none;
@@ -66,16 +68,54 @@ const Button = styled.button`
   ${laptop({fontSize: "15px"})}
   ${desktop({fontSize: "16px"})}
 `;
+const Form = styled.form`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+`;
+const Alert = styled.p`
+
+`;
 
 const Newsletter = () => {
+
+  const [input, setInput] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const inputHandler = (e)=> {
+    setInput(e.target.value);
+  };
+
+  const submitHandler = (e)=> {
+    e.preventDefault();
+    if(input){
+      console.log(input);
+      //add to firebase
+      db.collection("emails").add ({
+        email: input,
+        time: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      setInput("");
+      setSuccessMsg("Thank you for signing up");
+      setTimeout(()=> {
+        setSuccessMsg("");
+      }, 8000)
+    }
+  };
+
+
   return (
     <Container>
+      <Form onSubmit={submitHandler}>
         <Title>NEWSLETTER</Title>
         <Description>Sign up to receive updates from your favorite products</Description>
         <EmailContainer>
-          <Input placeholder="Email Address "/>
+          <Input placeholder="Email Address " type = "email" onChange={inputHandler} value = {input}/>
         </EmailContainer>
         <Button>SUBSCRIBE</Button>
+        </Form>
+        <Alert>{successMsg}</Alert>
     </Container>
   );
 };

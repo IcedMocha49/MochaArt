@@ -1,1 +1,2 @@
 .env
+rose-store/src/firebase.js
